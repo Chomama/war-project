@@ -6,6 +6,7 @@ function Card(props) {
     <div className="card">
         <p> {props.player} has {props.cardCount} card left. </p>
         <div id="card">
+            <p> { props.cardValue } </p>
         </div>
     </div>
   );

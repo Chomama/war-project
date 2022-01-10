@@ -8,113 +8,147 @@ const CARDS = ['D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D1
 'H2', 'H3', 'H4', 'H5', 'H6', 'H7', 'H8', 'H9', 'H10', 'H11', 'H12', 'H13', 'H14',
 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8', 'S9', 'S10', 'S11', 'S12', 'S13', 'S14'];
 
-var gameStates = {notStarted: 0, inProgress: 0, done: 0}; 
-
-const numRegex = /\d+/g;
+const gameStates = { notStarted: "notStarted", inProgress: "inProgress", done: "done" }; 
 
 function App() {
-  const [gameState, setGameState] = React.useState(gameState.notStarted);
-  const[playerOneDeck, setPlayerOneDeck] = React.useState([]);
-  const[playerTwoDeck, setPlayerTwoDeck] = React.useState([]);
-  const[playerOnePlayedCard, setPlayerOnePlayedCard] = React.useState(null);
-  const[playerTwoPlayedCard, setPlayerTwoPlayedCard] = React.useState(null);
-  const[roundWinner, setRoundWinner] = React.useState(null);
-  const[roundStatus, setRoundStatus] = React.useState(null);
+  const [gameValues, setGameValues] = React.useState({
+      gameState : gameStates.notStarted,
+      playerOneDeck : [],
+      playerTwoDeck : [],
+      playerOnePlayedCard : null,
+      playerTwoPlayedCard : null,
+      roundWinner : null,
+      roundStatus: null
+  }
+  )
 
 
   function startGame() {
-    if (this.gameRunning == false) {
-      setGameState(gameState.inProgress);
-    }
     var shuffledDeck = CARDS.sort(() => Math.random() - 0.5);
-    this.setPlayerOneDeck = shuffledDeck.slice(0, 26);
-    this.setPlayerTwoDeck = shuffledDeck.slice(26)
+    console.log("THE SHUFFLED DECK: " + shuffledDeck);
+    var newValues = {...gameValues};
+    if (gameValues.gameState !== gameStates.inProgress) {
+      newValues.gameState = gameStates.inProgress;
+    }
+    newValues.playerOneDeck = shuffledDeck.slice(0, 26);
+    newValues.playerTwoDeck = shuffledDeck.slice(26);
+    console.log("P1 DECK: " + newValues.playerOneDeck + " LENGTH " + newValues.playerOneDeck.length);
+    console.log("P2 DECK: " + newValues.playerTwoDeck + " LENGTH " + newValues.playerTwoDeck.length);
+
+    setGameValues(newValues);
+  }
+
+  // useEffect(() => {
+  //       simulateGame();
+  // });
+
+  function simulateGame() {
+    console.log("SIMULATING GAME.  GAME STATUS IS : " + gameValues.gameState);
+    if(gameValues.gameState === gameStates.inProgress) {
+      playRound();
+    }
   }
 
   function playRound() {
-      var inProgress = true;
-      var p1DeckCopy = playerOneDeck;
-      var p2DeckCopy = playerTwoDeck;
+      console.log("ROUND IN PROGRESS.");
+      var p1DeckCopy = gameValues.playerOneDeck;
+      var p2DeckCopy = gameValues.playerTwoDeck;
+
+      console.log("PLAYER 1 DECK: " + p1DeckCopy + " LENGTH: " + p1DeckCopy.length);
+      console.log("PLAYER 2 DECK: " + p2DeckCopy + " LENGTH: " + p2DeckCopy.length);
+
       var cardsWon = [];
       var roundWinner;
       var roundStatus;
       var gameState = gameStates.inProgress;
 
-      while(inProgress) {
-        var playerOneCard = p1DeckCopy.shift();
-        var playerTwoCard = p2DeckCopy.shift();
+      var playerOneCard = p1DeckCopy.shift();
+      var playerTwoCard = p2DeckCopy.shift();
+      console.log("PLAYER ONE CARD: " + playerOneCard);
+      console.log("PLAYER TWO CARD: " + playerTwoCard);
 
-        cardsWon.push(playerOneCard, playerTwoCard);
+      cardsWon.push(playerOneCard, playerTwoCard);
 
-        var playerOneCardVal = playerOneCard.match(numRegex);
-        var playerTwoCardVal = playerTwoCard.match(numRegex);
+      var playerOneCardVal = parseInt(playerOneCard.replace ( /[^\d.]/g, '' ));
+      var playerTwoCardVal = parseInt(playerTwoCard.replace ( /[^\d.]/g, '' ));
+      console.log("PLAYER ONE CARD VAL: " + playerOneCardVal);
+      console.log("PLAYER TWO CARD VAL: " + playerTwoCardVal);
 
-        //war
-        if(playerOneCardVal === playerTwoCardVal) {
-          var inWar = true;
-          while(inWar) {
-            if(p1DeckCopy.length < 2) {
-              inProgress = false;
-              inWar = false;
+      //war
+      if(playerOneCardVal === playerTwoCardVal) {
+        console.log("WAR");
+        var inWar = true;
+        while(inWar) {
+          if(p1DeckCopy.length < 2) {
+            inWar = false;
+            roundWinner = "playerOne";
+            roundStatus = 'Player two is out of cards.  Player one wins!'
+            gameState = gameStates.done;
+          } else if(p2DeckCopy.length < 2) {
+            inWar = false;
+            roundWinner = "playerTwo";
+            roundStatus = 'Player one is out of cards.  Player two wins!'
+            gameState = gameStates.done;
+          } else {
+            var playerOneWarCard = p1DeckCopy.shift();
+            var playerTwoWarCard = p2DeckCopy.shift();
+            console.log("IN WAR PLAYER ONE DRAWS: " + playerOneWarCard);
+            console.log("IN WAR PLAYER TWO DRAWS: " + playerTwoWarCard);
+            var playerOneWarCardVal = parseInt(playerOneWarCard.replace ( /[^\d.]/g, '' ));
+            var playerTwoWarCardVal = parseInt(playerTwoWarCard.replace ( /[^\d.]/g, '' ));
+            cardsWon.push(playerOneWarCard, playerTwoWarCard);
+            var playerOneFaceDownCard = p1DeckCopy.shift();
+            var playerTwoFaceDownCard = p2DeckCopy.shift();
+            cardsWon.push(playerOneFaceDownCard, playerTwoFaceDownCard);
+            if(playerOneWarCardVal > playerTwoWarCardVal) {
+              console.log("PLAYER ONE WON WAR WITH CARD: " + playerOneWarCard);
               roundWinner = "playerOne";
-              roundStatus = 'Player two is out of cards.  Player one wins!'
-              gameState = gameStates.done;
-            } else if(p2DeckCopy.length<2) {
-              inProgress = false;
+              p1DeckCopy.push(...cardsWon);
               inWar = false;
-              roundWinner = "playerTwo";
-              roundStatus = 'Player one is out of cards.  Player two wins!'
-              gameState = gameStates.done;
-
-            } else {
-              playerOneCard = p1DeckCopy.shift();
-              playerTwoCard = p2DeckCopy.shift();
-              cardsWon.push(playerOneCard, playerTwoCard);
-              cardsWon.push(p1DeckCopy.shift(), playerTwoCard.shift());
-              if(playerOneCard !== playerTwoCard) {
-                playerOneCardVal = playerOneCard.match(numRegex);
-                playerTwoCardVal = playerTwoCard.match(numRegex);
-                
-                if(playerOneCardVal > playerTwoCardVal) {
-                  roundWinner = "playerOne"
-                  p1DeckCopy.push(cardsWon);
-                  inWar = false;
-                  inProgress = false;
-                  roundStatus = "War was declared.  Player 1 won the war and received {cardsWon.length} cards.";
-                } else if(playerTwoCardVal > playerOneCardVal) {
-                    roundWinner = "playerTwo";
-                    p2DeckCopy.push(cardsWon);
-                    inWar = false;
-                    inProgress = false;
-                    roundStatus = "War was declared.  Player 2 won the war and received {cardsWon.length} cards.";
-                }
-              }
+              roundStatus = "War was declared.  Player 1 won the war and received" + cardsWon.length + "cards.";
+            } else if(playerTwoWarCardVal > playerOneWarCardVal) {
+                console.log("PLAYER TWO WON WAR WITH CARD: " + playerTwoWarCardVal);
+                roundWinner = "playerTwo";
+                p2DeckCopy.push(...cardsWon);
+                inWar = false;
+                roundStatus = "War was declared.  Player 2 won the war and received" + cardsWon.length + "cards";
             }
           }
+        }
+      } else {
+        if(playerOneCardVal > playerTwoCardVal) {
+          console.log("PLAYER ONE WON WITH CARD: " + playerOneCard);
+          roundWinner = "playerOne";
+          p1DeckCopy.push(...cardsWon);
+          roundStatus = "Player one won" + cardsWon.length + "cards";
         } else {
-          if(playerOneCardVal > playerTwoCardVal) {
-            roundWinner = "playerOne";
-            p1DeckCopy.push(cardsWon);
-            roundStatus = "Player one won {cardsWon.length} cards."
-          } else {
-            roundWinner = "playerTwo";
-            p2DeckCopy.push(cardsWon);
-            roundStatus = "Player two won {cardsWon.length} cards."
-          }
-          inProgress = false;
-        }  
-      }
+          console.log("PLAYER TWO WON WITH CARD: " + playerTwoCard);
+          roundWinner = "playerTwo";
+          p2DeckCopy.push(...cardsWon);
+          roundStatus = "Player two won" + cardsWon.length + "cards";
+        }
+      }  
+    
       if(p1DeckCopy.length === 0 || p2DeckCopy.length.length === 0) {
         gameState = gameStates.done;
       }
-      setRoundWinner(roundWinner);
-      setPlayerOneDeck(p1DeckCopy);
-      setPlayerTwoDeck(p2DeckCopy);
-      setRoundStatus(roundStatus);
-      setPlayerOnePlayedCard(playerOneCard);
-      setPlayerTwoPlayedCard(playerTwoCard);
-      setGameState(gameState);
+      console.log("END OF ROUND_____________________");
+      console.log("ROUND WINNER: " + roundWinner);
+      console.log("P1 has " + p1DeckCopy.length + " cards left.");
+      console.log("P2 has " + p2DeckCopy.length + " cards left.");
+      console.log("ROUND STATUS: " +roundStatus);
+      
+      var newValues = {...gameValues};
 
+      newValues.playerOneDeck = p1DeckCopy;
+      newValues.playerTwoDeck = p2DeckCopy;
+      newValues.roundWinner = roundWinner;
+      newValues.roundStatus = roundStatus;
+      newValues.playerOnePlayedCard = playerOneCard;
+      newValues.playerTwoPlayedCard = playerTwoCard;
+      newValues.gameState = gameState;
+
+      setGameValues(newValues);
   }
 
   
@@ -123,16 +157,17 @@ function App() {
   return (
     <div className="main">
       <h1> WAR</h1>
-      <button id="startButton" onClick={startGame} style={{gameState}==gameStates.notStarted ? {} : {display: 'none'}}> START </button>
+      <button id="startButton" onClick={startGame} style={gameValues.gameState !== gameStates.inProgress ? {} : {display: 'none'}}> START </button>
+      <button onClick={simulateGame}> TEST BUTTON</button>
       <div className="gameBoard">
           <div className = "playerOne">
-              <Card player="Player One"/>
+              <Card player="Player One" cardCount={gameValues.playerOneDeck.length} cardValue={gameValues.playerOnePlayedCard}/>
           </div>
-          <div className="gameStatus"> 
-            <p> TEST </p>
+          <div className="gameStatus" > 
+            <p> { gameValues.roundStatus }</p>
           </div> 
           <div className = "playerTwo">
-              <Card player="Player Two"/>
+              <Card player="Player Two" cardCount={gameValues.playerTwoDeck.length} cardValue={gameValues.playerTwoPlayedCard}/>
           </div>
       </div>
     </div>
