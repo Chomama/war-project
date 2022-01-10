@@ -18,7 +18,5 @@ app.get("*", (req, res) => {
 
 //start 
 
-app.get("/post", )
-
 
 //get wins

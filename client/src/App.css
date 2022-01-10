@@ -1,18 +1,9 @@
-.App {
-  text-align: center;
-}
+html{
+  background-color: Green;
+ }
 
 .main {
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  /* Preserve aspet ratio */
-  min-width: 100%;
-  min-height: 100%;
-  background: green;
-  text-align:center;
-
+  text-align: center;
 }
 
 h1 {
@@ -21,24 +12,21 @@ h1 {
   font-size: 60px;
 }
 
-#cardPlaceholders {
-  display: flex;
-  justify-content: center;
-  margin: 0;
-  top: 50%;
+.gameBoard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
 }
 
-#rectangle1 {
-  width: 150px;
-  height: 200px;
-  background: white;
-  margin: 10px;
+.playerOne {
+    margin: 30px;
+
 }
 
-#rectangle2 {
-  width: 150px;
-  height: 200px;
-  background: white;
-  margin: 10px;
+.playerTwo {
+    margin: 30px;
 }
 
+#startButton {
+  height: 80px;
+  width: 300px;
+}
