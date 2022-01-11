@@ -12,7 +12,7 @@ The "/score" endpoint utilizes node module fs to read from the json and return t
 -Basic testing is done using Mocha and Chai and can be found in the tests directory.
 
 In order to run the project:
-1. git clone 
+1. git clone https://github.com/Chomama/war-project.git
 2. cd tank-game
 3. npm install
 4. npm start
