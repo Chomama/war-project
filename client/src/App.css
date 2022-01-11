@@ -1,32 +1,32 @@
 html{
-  background-color: Green;
+  background-color: goldenrod;
  }
 
 .main {
   text-align: center;
+  display: block
 }
 
 h1 {
   text-align: center;
-  color: red;
+  color: black;
   font-size: 60px;
 }
 
-.gameBoard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
 .playerOne {
-    margin: 30px;
-
+  margin-right: auto;
+  margin-left: auto;
+  width: 300px;
 }
 
 .playerTwo {
-    margin: 30px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 300px;
 }
 
 #startButton {
   height: 80px;
   width: 300px;
+  margin: 20px;
 }

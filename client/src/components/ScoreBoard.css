@@ -1,0 +1,11 @@
+.scoreBoard {
+    width: 200PX;
+    height: 80px;
+    background: #ffffff;
+    text-align: center;
+    position: fixed;
+    top: 10px;
+    right: 40px;
+}
+
+

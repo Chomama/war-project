@@ -1,7 +1,7 @@
 import "./App.css";
 import React, { useEffect } from "react";
 import Card from "./components/Card";
-
+import ScoreBoard from "./components/ScoreBoard"
 
 const CARDS = ['D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8', 'D9', 'D10', 'D11', 'D12', 'D13', 'D14',
 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10', 'C11', 'C12', 'C13', 'C14',
@@ -18,10 +18,43 @@ function App() {
       playerOnePlayedCard : null,
       playerTwoPlayedCard : null,
       roundWinner : null,
-      roundStatus: null
+      roundStatus: null,
+      intervalId : null,
+      playerOneWins: null,
+      playerTwoWins: null
   }
   )
 
+  async function getWins(playerId1, playerId2) {
+      console.log(`/getWins?playerId1=${playerId1}&playerId2=${playerId2}`);
+      fetch(`/getWins?playerId1=${playerId1}&playerId2=${playerId2}`, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+      }
+      }).then(response => response.json())
+      .then(json => {
+        var player1Wins = json[0].WINS;
+        var player2Wins = json[1].WINS;
+        console.log("GOT HERE" + json.WINS);
+        var newValues = {...gameValues};
+        newValues.playerOneWins = player1Wins;
+        newValues.playerTwoWins = player2Wins;
+        setGameValues(newValues);
+      });
+  }
+
+  async function updateWins(playerId) {
+    console.log("UPDATE WINS BEING CALLED");
+    fetch(`/updateWins?playerId=${playerId}`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+    }
+    });    
+  }
 
   function startGame() {
     var shuffledDeck = CARDS.sort(() => Math.random() - 0.5);
@@ -38,14 +71,25 @@ function App() {
     setGameValues(newValues);
   }
 
-  // useEffect(() => {
-  //       simulateGame();
-  // });
+  useEffect(() => {
+    getWins("playerOne", "playerTwo");
+
+    if (gameValues.gameState === gameStates.inProgress) {
+      let letIntervalID = setInterval(() => {
+        simulateGame()
+      }, 200);
+      setGameValues({...gameValues, intervalId : letIntervalID}); 
+    } else {
+      clearInterval(gameValues.intervalID);
+      console.log("CLEAR INTERVAL!");
+    }
+  }, [gameValues.gameState]);
+
 
   function simulateGame() {
     console.log("SIMULATING GAME.  GAME STATUS IS : " + gameValues.gameState);
     if(gameValues.gameState === gameStates.inProgress) {
-      playRound();
+        playRound();
     }
   }
 
@@ -82,13 +126,15 @@ function App() {
           if(p1DeckCopy.length < 2) {
             inWar = false;
             roundWinner = "playerOne";
-            roundStatus = 'Player two is out of cards.  Player one wins!'
+            roundStatus = 'Player one is out of cards.  Player two wins!'
             gameState = gameStates.done;
+            updateWins("playerTwo");
           } else if(p2DeckCopy.length < 2) {
             inWar = false;
             roundWinner = "playerTwo";
-            roundStatus = 'Player one is out of cards.  Player two wins!'
+            roundStatus = 'Player two is out of cards.  Player one wins!'
             gameState = gameStates.done;
+            updateWins("playerOne");
           } else {
             var playerOneWarCard = p1DeckCopy.shift();
             var playerTwoWarCard = p2DeckCopy.shift();
@@ -105,13 +151,13 @@ function App() {
               roundWinner = "playerOne";
               p1DeckCopy.push(...cardsWon);
               inWar = false;
-              roundStatus = "War was declared.  Player 1 won the war and received" + cardsWon.length + "cards.";
+              roundStatus = "War was declared.  Player 1 won the war and received " + cardsWon.length + "cards.";
             } else if(playerTwoWarCardVal > playerOneWarCardVal) {
                 console.log("PLAYER TWO WON WAR WITH CARD: " + playerTwoWarCardVal);
                 roundWinner = "playerTwo";
                 p2DeckCopy.push(...cardsWon);
                 inWar = false;
-                roundStatus = "War was declared.  Player 2 won the war and received" + cardsWon.length + "cards";
+                roundStatus = "War was declared.  Player 2 won the war and received " + cardsWon.length + "cards";
             }
           }
         }
@@ -120,17 +166,23 @@ function App() {
           console.log("PLAYER ONE WON WITH CARD: " + playerOneCard);
           roundWinner = "playerOne";
           p1DeckCopy.push(...cardsWon);
-          roundStatus = "Player one won" + cardsWon.length + "cards";
+          roundStatus = "Player One won " + cardsWon.length + " cards";
         } else {
           console.log("PLAYER TWO WON WITH CARD: " + playerTwoCard);
           roundWinner = "playerTwo";
           p2DeckCopy.push(...cardsWon);
-          roundStatus = "Player two won" + cardsWon.length + "cards";
+          roundStatus = "Player Two won " + cardsWon.length + " cards";
         }
       }  
     
-      if(p1DeckCopy.length === 0 || p2DeckCopy.length.length === 0) {
+      if(p1DeckCopy.length === 0) {
+        roundStatus = "Player one has no cards left. PLAYER TWO HAS WON!"
         gameState = gameStates.done;
+        updateWins("playerTwo");
+      } else if(p2DeckCopy.length === 0) {
+        roundStatus = "Player two has no cards left. PLAYER ONE HAS WON!"
+        gameState = gameStates.done;
+        updateWins("playerOne")
       }
       console.log("END OF ROUND_____________________");
       console.log("ROUND WINNER: " + roundWinner);
@@ -151,19 +203,18 @@ function App() {
       setGameValues(newValues);
   }
 
-  
-  
-
   return (
     <div className="main">
-      <h1> WAR</h1>
-      <button id="startButton" onClick={startGame} style={gameValues.gameState !== gameStates.inProgress ? {} : {display: 'none'}}> START </button>
-      <button onClick={simulateGame}> TEST BUTTON</button>
+      <div className="header">
+        <h1> WAR</h1>
+        <button id="startButton" onClick={startGame} style={gameValues.gameState !== gameStates.inProgress ? {} : {display: 'none'}}> START </button>
+        <ScoreBoard playerOneWins={gameValues.playerOneWins} playerTwoWins={gameValues.playerTwoWins}/>
+      </div>
       <div className="gameBoard">
           <div className = "playerOne">
               <Card player="Player One" cardCount={gameValues.playerOneDeck.length} cardValue={gameValues.playerOnePlayedCard}/>
           </div>
-          <div className="gameStatus" > 
+          <div className = "statusSection"> 
             <p> { gameValues.roundStatus }</p>
           </div> 
           <div className = "playerTwo">
