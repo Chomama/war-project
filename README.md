@@ -10,3 +10,10 @@ the card game in javascript file play_war.
 The "/score" endpoint utilizes node module fs to read from the json and return the scores.
 
 -Basic testing is done using Mocha and Chai and can be found in the tests directory.
+
+In order to run the project:
+1. git clone 
+2. cd tank-game
+3. npm install
+4. npm start
+5. Browse to localhost:8081
