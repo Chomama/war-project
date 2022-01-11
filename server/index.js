@@ -27,12 +27,16 @@ var router = express.Router(); // get an instance of the express Router
 app.get("/getWins", (req, res) => {
   const playerId1 = req.query.playerId1;
   const playerId2 = req.query.playerId2;
-  db.query("SELECT WINS FROM Player WHERE playerId = ? OR playerId = ?", [playerId1,playerId2], (err, result) => {
-    if (err) {
-      console.log(err);
+  db.query(
+    "SELECT WINS FROM Player WHERE playerId = ? OR playerId = ?",
+    [playerId1, playerId2],
+    (err, result) => {
+      if (err) {
+        console.log(err);
+      }
+      res.send(result);
     }
-    res.send(result);
-  });
+  );
 });
 
 //update wins for player
@@ -49,3 +53,5 @@ app.post("/updateWins", (req, res) => {
     }
   );
 });
+
+module.exports = app;
