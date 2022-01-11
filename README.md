@@ -20,7 +20,6 @@ npm start
 ```
 npm test
 ```
-Tests are unfinished.
 
 **Build for production**
 ```
