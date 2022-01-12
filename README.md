@@ -5,17 +5,27 @@ This a project that plays the card game War in the browser.
 The game is written in React, node, and connects to a MySql database running on AWS.
 
 ## Usage
-
-**Docker**
-To run using docker:
+**Installation**
 
 ```bash
-git clone https://github.com/Chomama/war-project.git
+https://github.com/Chomama/war-project.git
 cd war-project
-docker build -t war-project .
-docker run -it -p 8081:8081 war-project
+cd server
+npm install
+npm run build
 ```
-App will be running on localhost:8081
+**Start the application in dev mode running on localhost localhost:8081/**
 
+```
+npm start
+```
 
+**Run tests**
+```
+npm test
+```
 
+**Build for production**
+```
+npm run build
+```
