@@ -15,8 +15,10 @@ npm install
 npm run build
 ```
 
-**Start the application in dev mode**
+**Start the application 
 ```
+cd server
+npm run build
 npm start
 ```
 
