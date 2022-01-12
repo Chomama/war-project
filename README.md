@@ -16,7 +16,7 @@ npm run build
 ```
 For the scoreboard to work, you must navigate to /server/config/db.config.js and fill in the password.
 
-** Start the application running on  localhost:8081 **
+**Start the application running on  localhost:8081**
 
 ```
 cd server
