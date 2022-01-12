@@ -17,5 +17,3 @@ describe("Test GET endpoint /getWins", () => {
       });
   });
 });
-
-

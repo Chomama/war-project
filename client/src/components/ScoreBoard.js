@@ -8,6 +8,5 @@ function ScoreBoard(props) {
         <p> Player Two: { props.playerTwoWins } </p>
     </div>
   );
-
 }
 export default ScoreBoard;

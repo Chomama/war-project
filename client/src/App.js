@@ -25,8 +25,8 @@ function App() {
   }
   )
 
+  //calls api to get players lifetime wins
   async function getWins(playerId1, playerId2) {
-      console.log(`/getWins?playerId1=${playerId1}&playerId2=${playerId2}`);
       fetch(`/getWins?playerId1=${playerId1}&playerId2=${playerId2}`, {
         method: 'GET',
         headers: {
@@ -37,7 +37,6 @@ function App() {
       .then(json => {
         var player1Wins = json[0].WINS;
         var player2Wins = json[1].WINS;
-        console.log("GOT HERE" + json.WINS);
         var newValues = {...gameValues};
         newValues.playerOneWins = player1Wins;
         newValues.playerTwoWins = player2Wins;
@@ -45,8 +44,8 @@ function App() {
       });
   }
 
+  //calls api to update players wins
   async function updateWins(playerId) {
-    console.log("UPDATE WINS BEING CALLED");
     fetch(`/updateWins?playerId=${playerId}`, {
       method: 'POST',
       headers: {
@@ -56,73 +55,57 @@ function App() {
     });    
   }
 
+  //initializes initial game values
   function startGame() {
     var shuffledDeck = CARDS.sort(() => Math.random() - 0.5);
-    console.log("THE SHUFFLED DECK: " + shuffledDeck);
     var newValues = {...gameValues};
     if (gameValues.gameState !== gameStates.inProgress) {
       newValues.gameState = gameStates.inProgress;
     }
     newValues.playerOneDeck = shuffledDeck.slice(0, 26);
     newValues.playerTwoDeck = shuffledDeck.slice(26);
-    console.log("P1 DECK: " + newValues.playerOneDeck + " LENGTH " + newValues.playerOneDeck.length);
-    console.log("P2 DECK: " + newValues.playerTwoDeck + " LENGTH " + newValues.playerTwoDeck.length);
-
     setGameValues(newValues);
   }
 
   useEffect(() => {
+    //populates scoreboard
     getWins("playerOne", "playerTwo");
 
+    //if game is in progress, call playRound on timer every second to simulate players playing
     if (gameValues.gameState === gameStates.inProgress) {
       let letIntervalID = setInterval(() => {
-        simulateGame()
-      }, 200);
+        playRound()
+      }, 1000);
       setGameValues({...gameValues, intervalId : letIntervalID}); 
     } else {
       clearInterval(gameValues.intervalID);
-      console.log("CLEAR INTERVAL!");
     }
   }, [gameValues.gameState]);
 
-
-  function simulateGame() {
-    console.log("SIMULATING GAME.  GAME STATUS IS : " + gameValues.gameState);
-    if(gameValues.gameState === gameStates.inProgress) {
-        playRound();
-    }
-  }
-
+  
   function playRound() {
-      console.log("ROUND IN PROGRESS.");
       var p1DeckCopy = gameValues.playerOneDeck;
       var p2DeckCopy = gameValues.playerTwoDeck;
-
-      console.log("PLAYER 1 DECK: " + p1DeckCopy + " LENGTH: " + p1DeckCopy.length);
-      console.log("PLAYER 2 DECK: " + p2DeckCopy + " LENGTH: " + p2DeckCopy.length);
-
       var cardsWon = [];
       var roundWinner;
       var roundStatus;
       var gameState = gameStates.inProgress;
 
+      //gets cards from players decks
       var playerOneCard = p1DeckCopy.shift();
       var playerTwoCard = p2DeckCopy.shift();
-      console.log("PLAYER ONE CARD: " + playerOneCard);
-      console.log("PLAYER TWO CARD: " + playerTwoCard);
 
       cardsWon.push(playerOneCard, playerTwoCard);
 
       var playerOneCardVal = parseInt(playerOneCard.replace ( /[^\d.]/g, '' ));
       var playerTwoCardVal = parseInt(playerTwoCard.replace ( /[^\d.]/g, '' ));
-      console.log("PLAYER ONE CARD VAL: " + playerOneCardVal);
-      console.log("PLAYER TWO CARD VAL: " + playerTwoCardVal);
 
       //war
       if(playerOneCardVal === playerTwoCardVal) {
-        console.log("WAR");
         var inWar = true;
+        //continues in case of ties during war 
         while(inWar) {
+          //player loses if not enough cards to have war
           if(p1DeckCopy.length < 2) {
             inWar = false;
             roundWinner = "playerOne";
@@ -135,11 +118,10 @@ function App() {
             roundStatus = 'Player two is out of cards.  Player one wins!'
             gameState = gameStates.done;
             updateWins("playerOne");
-          } else {
+          } else { 
+            //plays out standard war round
             var playerOneWarCard = p1DeckCopy.shift();
             var playerTwoWarCard = p2DeckCopy.shift();
-            console.log("IN WAR PLAYER ONE DRAWS: " + playerOneWarCard);
-            console.log("IN WAR PLAYER TWO DRAWS: " + playerTwoWarCard);
             var playerOneWarCardVal = parseInt(playerOneWarCard.replace ( /[^\d.]/g, '' ));
             var playerTwoWarCardVal = parseInt(playerTwoWarCard.replace ( /[^\d.]/g, '' ));
             cardsWon.push(playerOneWarCard, playerTwoWarCard);
@@ -147,13 +129,11 @@ function App() {
             var playerTwoFaceDownCard = p2DeckCopy.shift();
             cardsWon.push(playerOneFaceDownCard, playerTwoFaceDownCard);
             if(playerOneWarCardVal > playerTwoWarCardVal) {
-              console.log("PLAYER ONE WON WAR WITH CARD: " + playerOneWarCard);
               roundWinner = "playerOne";
               p1DeckCopy.push(...cardsWon);
               inWar = false;
               roundStatus = "War was declared.  Player 1 won the war and received " + cardsWon.length + "cards.";
             } else if(playerTwoWarCardVal > playerOneWarCardVal) {
-                console.log("PLAYER TWO WON WAR WITH CARD: " + playerTwoWarCardVal);
                 roundWinner = "playerTwo";
                 p2DeckCopy.push(...cardsWon);
                 inWar = false;
@@ -162,19 +142,19 @@ function App() {
           }
         }
       } else {
+        //standard non-war scenario
         if(playerOneCardVal > playerTwoCardVal) {
-          console.log("PLAYER ONE WON WITH CARD: " + playerOneCard);
           roundWinner = "playerOne";
           p1DeckCopy.push(...cardsWon);
           roundStatus = "Player One won " + cardsWon.length + " cards";
         } else {
-          console.log("PLAYER TWO WON WITH CARD: " + playerTwoCard);
           roundWinner = "playerTwo";
           p2DeckCopy.push(...cardsWon);
           roundStatus = "Player Two won " + cardsWon.length + " cards";
         }
       }  
     
+      //win conditions
       if(p1DeckCopy.length === 0) {
         roundStatus = "Player one has no cards left. PLAYER TWO HAS WON!"
         gameState = gameStates.done;
@@ -184,12 +164,8 @@ function App() {
         gameState = gameStates.done;
         updateWins("playerOne")
       }
-      console.log("END OF ROUND_____________________");
-      console.log("ROUND WINNER: " + roundWinner);
-      console.log("P1 has " + p1DeckCopy.length + " cards left.");
-      console.log("P2 has " + p2DeckCopy.length + " cards left.");
-      console.log("ROUND STATUS: " +roundStatus);
       
+      //update all the state values
       var newValues = {...gameValues};
 
       newValues.playerOneDeck = p1DeckCopy;
