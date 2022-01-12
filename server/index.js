@@ -6,7 +6,7 @@ const cors = require("cors");
 
 //create app
 const app = express();
-const PORT = process.env.PORT || 3001; //set port
+const PORT = process.env.PORT || 8081; //set port
 app.use(cors());
 app.use(express.json());
 
