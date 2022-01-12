@@ -34,3 +34,6 @@ npm test
 cd server
 npm run build
 ```
+
+**Docker**
+Work in progress...
