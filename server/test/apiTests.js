@@ -18,15 +18,4 @@ describe("Test GET endpoint /getWins", () => {
   });
 });
 
-describe("Test POST endpoint /updateWins", () => {
-  it("should add one to the win column of the database", (done) => {
-    chai
-      .request(server)
-      .post("/updateWins")
-      .send({ playerId: "playerOne" })
-      .end((err, res) => {
-        res.should.have.status(200);
-        done();
-      });
-  });
-});
+
