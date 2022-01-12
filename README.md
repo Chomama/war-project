@@ -8,7 +8,7 @@ The game is written in React, node, and connects to a MySql database running on 
 To run using docker
 
 ```bash
-https://github.com/Chomama/war-project.git
+git clone https://github.com/Chomama/war-project.git
 cd war-project
 docker build -t war-project .
 docker run -it -p 8081:8081 war-project
