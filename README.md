@@ -14,18 +14,21 @@ cd server
 npm install
 npm run build
 ```
-**Start the application in dev mode running on localhost localhost:8081/**
+**Start the application running on  localhost:8081 **
 
 ```
+cd server
 npm start
 ```
 
 **Run tests**
 ```
+cd server
 npm test
 ```
 
 **Build for production**
 ```
+cd server
 npm run build
 ```
