@@ -6,24 +6,16 @@ The game is written in React, node, and connects to a MySql database running on 
 
 ## Usage
 
-**Install**
-```
-git clone https://github.com/Chomama/war-project.git
-cd war-project 
-cd server
-npm install
-npm run build
-```
+**Docker**
+To run using docker:
 
-**Start the application 
+```bash
+https://github.com/Chomama/war-project.git
+cd war-project
+docker build -t war-project .
+docker run -it -p 8081:8081 war-project
 ```
-cd server
-npm run build
-npm start
-```
+App will be running on localhost:8081
 
-**Run tests**
-```
-npm test
-```
+
 
