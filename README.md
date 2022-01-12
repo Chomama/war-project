@@ -8,7 +8,11 @@ The game is written in React, node, and connects to a MySql database running on 
 
 **Install**
 ```
+git clone https://github.com/Chomama/war-project.git
+cd war-project 
+cd server
 npm install
+npm run build
 ```
 
 **Start the application in dev mode**
@@ -21,7 +25,3 @@ npm start
 npm test
 ```
 
-**Build for production**
-```
-npm run build
-```
